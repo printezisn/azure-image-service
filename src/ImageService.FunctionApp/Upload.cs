@@ -6,23 +6,44 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Linq;
+using ImageService.Core;
+using ImageService.FunctionApp.Helpers;
 
 namespace ImageService.FunctionApp
 {
-    public static class Upload
+    public class Upload
     {
+        private readonly IRequestHelper _requestHelper;
+        private readonly IFileRepository _fileRepository;
+
+        public Upload(IRequestHelper requestHelper, IFileRepository fileRepository)
+        {
+            _requestHelper = requestHelper;
+            _fileRepository = fileRepository;
+        }
+
         [FunctionName("Upload")]
-        public static async Task<IActionResult> Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("Function triggered to upload image.");
 
-            log.LogError(req.Form.Files.First().Length.ToString());
+            var file = _requestHelper.GetFile(req);
 
-            return new OkObjectResult("test");
+            if (file == null)
+            {
+                return new BadRequestObjectResult("The image file doesn't exist.");
+            }
+
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                return new BadRequestObjectResult("The file is not an image.");
+            }
+
+            var filename = await _fileRepository.UploadFile(file.FileName, file.OpenReadStream());
+
+            return new OkObjectResult(new { Filename = filename, BaseImageUrl = _fileRepository.BaseImageUrl });
         }
     }
 }

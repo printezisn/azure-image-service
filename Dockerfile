@@ -7,9 +7,6 @@ RUN npm i -g azure-functions-core-tools@3 --unsafe-perm true
 COPY . .
 RUN dotnet build
 
-RUN mkdir /release
-RUN cp -r ./src/ImageService.FunctionApp/* /release
-
-WORKDIR /release
+WORKDIR /app/src/ImageService.FunctionApp
 
 CMD ["func", "start"]
