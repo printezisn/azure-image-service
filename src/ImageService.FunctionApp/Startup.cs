@@ -14,6 +14,7 @@ namespace ImageService.FunctionApp
         public override void Configure(IFunctionsHostBuilder builder)
         {
             builder.Services.AddSingleton<IFileRepository, AzureStorageFileRepository>();
+            builder.Services.AddSingleton<IQueueRepository, AzureStorageQueueRepository>();
             builder.Services.AddSingleton<IRequestHelper, RequestHelper>();
         }
     }
