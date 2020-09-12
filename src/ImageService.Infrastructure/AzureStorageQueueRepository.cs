@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using Azure.Storage.Queues;
 using ImageService.Core;
@@ -37,7 +38,9 @@ namespace ImageService.Infrastructure
             await QueueClient.CreateIfNotExistsAsync();
 
             var message = JsonConvert.SerializeObject(messageModel);
-            await QueueClient.SendMessageAsync(message);
+            var encodedMessage = Encoding.UTF8.GetBytes(message);
+
+            await QueueClient.SendMessageAsync(Convert.ToBase64String(encodedMessage));
         }
     }
 }

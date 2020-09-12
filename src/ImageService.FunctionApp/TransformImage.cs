@@ -21,6 +21,10 @@ namespace ImageService.FunctionApp
         public async Task Run([BlobTrigger("%MainImageContainer%/{name}", Connection = "AzureWebJobsStorage")] Stream myBlob, string name, ILogger log)
         {
             log.LogInformation($"Function triggered to transform image {name}");
+            if (name.Contains("/"))
+            {
+                return;
+            }
 
             await _queueRepository.SendMessage(new TransformImageModel() { Image = name, Size = 256 });
             await _queueRepository.SendMessage(new TransformImageModel() { Image = name, Size = 128 });

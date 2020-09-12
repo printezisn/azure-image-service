@@ -59,7 +59,7 @@ namespace ImageService.UnitTests
             _file.Setup(s => s.FileName).Returns("test.png");
             _file.Setup(s => s.OpenReadStream()).Returns(_stream.Object);
 
-            _fileRepository.Setup(s => s.UploadFile("test.png", _stream.Object)).Returns(Task.FromResult("test.png"));
+            _fileRepository.Setup(s => s.UploadFile("test.png", null, _stream.Object)).Returns(Task.FromResult("test.png"));
             _fileRepository.Setup(s => s.BaseImageUrl).Returns("http://localhost/");
 
             var result = (await _function.Run(_request.Object, _logger.Object)) as OkObjectResult;

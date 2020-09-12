@@ -22,7 +22,15 @@ namespace ImageService.UnitTests
         }
 
         [Fact]
-        public async Task TestTransformImage()
+        public async Task TestTransformImageWithSubfolder()
+        {
+            await _function.Run(null, "64/test.png", _logger.Object);
+
+            _queueRepository.Verify(v => v.SendMessage(It.IsAny<TransformImageModel>()), Times.Never());
+        }
+
+        [Fact]
+        public async Task TestTransformImageWithSuccess()
         {
             await _function.Run(null, "test.png", _logger.Object);
 
