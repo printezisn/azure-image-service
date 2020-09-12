@@ -6,7 +6,7 @@ namespace ImageService.Core
     public interface IFileRepository
     {
         string BaseImageUrl { get; }
-        Task<string> UploadFile(string filename, string folder, Stream stream);
+        Task UploadFile(string filename, Stream stream);
         Task<Stream> DownloadFile(string filename);
     }
 }

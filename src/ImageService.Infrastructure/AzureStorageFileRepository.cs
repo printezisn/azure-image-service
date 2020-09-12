@@ -20,22 +20,13 @@ namespace ImageService.Infrastructure
             _mainImageContainer = Environment.GetEnvironmentVariable("MainImageContainer");
         }
 
-        public async Task<string> UploadFile(string filename, string folder, Stream stream)
+        public async Task UploadFile(string filename, Stream stream)
         {
             var containerClient = new BlobContainerClient(_connectionString, _mainImageContainer);
             await containerClient.CreateIfNotExistsAsync(publicAccessType: PublicAccessType.Blob);
 
-            var extension = Path.GetExtension(filename);
-            filename = Guid.NewGuid() + extension;
-            if (folder != null)
-            {
-                filename = $"{folder}/{filename}";
-            }
-
             var blobClient = containerClient.GetBlobClient(filename);
             await blobClient.UploadAsync(stream);
-
-            return filename;
         }
 
         public Task<Stream> DownloadFile(string filename)

@@ -59,15 +59,13 @@ namespace ImageService.UnitTests
             _file.Setup(s => s.FileName).Returns("test.png");
             _file.Setup(s => s.OpenReadStream()).Returns(_stream.Object);
 
-            _fileRepository.Setup(s => s.UploadFile("test.png", null, _stream.Object)).Returns(Task.FromResult("test.png"));
             _fileRepository.Setup(s => s.BaseImageUrl).Returns("http://localhost/");
 
             var result = (await _function.Run(_request.Object, _logger.Object)) as OkObjectResult;
 
-            Assert.NotNull(result);
+            _fileRepository.Verify(s => s.UploadFile(It.IsAny<string>(), _stream.Object));
 
-            Assert.Equal("http://localhost/", result.Value.GetType().GetProperty("BaseImageUrl").GetValue(result.Value));
-            Assert.Equal("test.png", result.Value.GetType().GetProperty("Filename").GetValue(result.Value));
+            Assert.NotNull(result);
         }
     }
 }

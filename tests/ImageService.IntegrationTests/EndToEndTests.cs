@@ -2,9 +2,11 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Xunit;
+using Xunit.Sdk;
 
 namespace ImageService.IntegrationTests
 {
@@ -39,6 +41,26 @@ namespace ImageService.IntegrationTests
             Console.WriteLine(uploadResponse.BaseImageUrl + uploadResponse.Filename);
             response = await _client.GetAsync(uploadResponse.BaseImageUrl + uploadResponse.Filename);
             response.EnsureSuccessStatusCode();
+
+            await WaitForResizedImage(uploadResponse.BaseImageUrl, uploadResponse.Filename, 256);
+            await WaitForResizedImage(uploadResponse.BaseImageUrl, uploadResponse.Filename, 128);
+            await WaitForResizedImage(uploadResponse.BaseImageUrl, uploadResponse.Filename, 64);
+        }
+
+        private async Task WaitForResizedImage(string baseImageUrl, string image, int size)
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                var response = await _client.GetAsync($"{baseImageUrl}{size}/{image}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return;
+                }
+
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+            }
+
+            throw new XunitException();
         }
     }
 }

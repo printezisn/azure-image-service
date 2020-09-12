@@ -41,7 +41,9 @@ namespace ImageService.FunctionApp
                 return new BadRequestObjectResult("The file is not an image.");
             }
 
-            var filename = await _fileRepository.UploadFile(file.FileName, null, file.OpenReadStream());
+            string extension = Path.GetExtension(file.FileName);
+            string filename = Guid.NewGuid() + extension;
+            await _fileRepository.UploadFile(filename, file.OpenReadStream());
 
             return new OkObjectResult(new { Filename = filename, BaseImageUrl = _fileRepository.BaseImageUrl });
         }

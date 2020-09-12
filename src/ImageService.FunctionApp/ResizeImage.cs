@@ -25,7 +25,7 @@ namespace ImageService.FunctionApp
             log.LogInformation($"Function triggered to resize image {messageModel.Image} with size {messageModel.Size}");
 
             var stream = await _fileRepository.DownloadFile(messageModel.Image);
-            await _fileRepository.UploadFile(messageModel.Image, messageModel.Size.ToString(), stream);
+            await _fileRepository.UploadFile($"{messageModel.Size}/{messageModel.Image}", stream);
         }
     }
 }
