@@ -16,6 +16,7 @@ namespace ImageService.FunctionApp
             builder.Services.AddSingleton<IFileRepository, AzureStorageFileRepository>();
             builder.Services.AddSingleton<IQueueRepository, AzureStorageQueueRepository>();
             builder.Services.AddSingleton<IRequestHelper, RequestHelper>();
+            builder.Services.AddSingleton<IImageHandler, ImageHandler>();
         }
     }
 }

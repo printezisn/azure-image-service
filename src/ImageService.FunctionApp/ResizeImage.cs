@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using ImageService.Core;
 using ImageService.Core.Models;
@@ -12,10 +13,12 @@ namespace ImageService.FunctionApp
     public class ResizeImage
     {
         private readonly IFileRepository _fileRepository;
+        private readonly IImageHandler _imageHandler;
 
-        public ResizeImage(IFileRepository fileRepository)
+        public ResizeImage(IFileRepository fileRepository, IImageHandler imageHandler)
         {
             _fileRepository = fileRepository;
+            _imageHandler = imageHandler;
         }
 
         [FunctionName("ResizeImage")]
@@ -25,7 +28,11 @@ namespace ImageService.FunctionApp
             log.LogInformation($"Function triggered to resize image {messageModel.Image} with size {messageModel.Size}");
 
             var stream = await _fileRepository.DownloadFile(messageModel.Image);
-            await _fileRepository.UploadFile($"{messageModel.Size}/{messageModel.Image}", stream);
+            using var resizedImageStream = new MemoryStream();
+
+            _imageHandler.Resize(stream, resizedImageStream, messageModel.Size);
+
+            await _fileRepository.UploadFile($"{messageModel.Size}/{messageModel.Image}", resizedImageStream);
         }
     }
 }
