@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using ImageService.Core;
 using ImageService.Core.Models;
@@ -11,10 +13,14 @@ namespace ImageService.FunctionApp
     public class TransformImage
     {
         private readonly IQueueRepository _queueRepository;
+        private readonly IEnumerable<int> _sizes;
 
         public TransformImage(IQueueRepository queueRepository)
         {
             _queueRepository = queueRepository;
+            _sizes = Environment.GetEnvironmentVariable("Sizes")
+                .Split(',')
+                .Select(s => int.Parse(s));
         }
 
         [FunctionName("TransformImage")]
@@ -26,9 +32,10 @@ namespace ImageService.FunctionApp
                 return;
             }
 
-            await _queueRepository.SendMessage(new TransformImageModel() { Image = name, Size = 256 });
-            await _queueRepository.SendMessage(new TransformImageModel() { Image = name, Size = 128 });
-            await _queueRepository.SendMessage(new TransformImageModel() { Image = name, Size = 64 });
+            foreach (int size in _sizes)
+            {
+                await _queueRepository.SendMessage(new TransformImageModel() { Image = name, Size = size });
+            }
         }
     }
 }

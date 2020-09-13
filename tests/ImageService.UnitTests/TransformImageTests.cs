@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using ImageService.Core;
 using ImageService.Core.Models;
@@ -16,6 +17,8 @@ namespace ImageService.UnitTests
 
         public TransformImageTests()
         {
+            Environment.SetEnvironmentVariable("Sizes", "256,128,64");
+
             _queueRepository = new Mock<IQueueRepository>();
             _logger = new Mock<ILogger<TransformImageTests>>();
             _function = new TransformImage(_queueRepository.Object);
