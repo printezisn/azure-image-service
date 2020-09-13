@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "MainImageContainer": "images",
+    "QueueName": "transform-image-queue",
+    "BaseImageUrl": "http://localhost:10000/",
+    "Sizes": "256,128,64",
+    "MaxFileSize": "5242880",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+  }
+}
