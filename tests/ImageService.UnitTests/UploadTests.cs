@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using ImageService.Core;
@@ -23,6 +24,8 @@ namespace ImageService.UnitTests
 
         public UploadTests()
         {
+            Environment.SetEnvironmentVariable("MaxFileSize", "1024");
+
             _requestHelper = new Mock<IRequestHelper>();
             _fileRepository = new Mock<IFileRepository>();
             _file = new Mock<IFormFile>();
@@ -52,11 +55,24 @@ namespace ImageService.UnitTests
         }
 
         [Fact]
+        public async Task TestUploadWithInvalidFileSize()
+        {
+            _requestHelper.Setup(s => s.GetFile(_request.Object)).Returns(_file.Object);
+            _file.Setup(s => s.ContentType).Returns("image/png");
+            _file.Setup(s => s.Length).Returns(2048);
+
+            var result = (await _function.Run(_request.Object, _logger.Object)) as BadRequestObjectResult;
+
+            Assert.NotNull(result);
+        }
+
+        [Fact]
         public async Task TestUploadWithSuccess()
         {
             _requestHelper.Setup(s => s.GetFile(_request.Object)).Returns(_file.Object);
             _file.Setup(s => s.ContentType).Returns("image/png");
             _file.Setup(s => s.FileName).Returns("test.png");
+            _file.Setup(s => s.Length).Returns(500);
             _file.Setup(s => s.OpenReadStream()).Returns(_stream.Object);
 
             _fileRepository.Setup(s => s.BaseImageUrl).Returns("http://localhost/");

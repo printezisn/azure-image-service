@@ -15,11 +15,13 @@ namespace ImageService.FunctionApp
     {
         private readonly IRequestHelper _requestHelper;
         private readonly IFileRepository _fileRepository;
+        private readonly long _maxFileSize;
 
         public Upload(IRequestHelper requestHelper, IFileRepository fileRepository)
         {
             _requestHelper = requestHelper;
             _fileRepository = fileRepository;
+            _maxFileSize = long.Parse(Environment.GetEnvironmentVariable("MaxFileSize"));
         }
 
         [FunctionName("Upload")]
@@ -27,18 +29,21 @@ namespace ImageService.FunctionApp
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            log.LogInformation("Function triggered to upload image.");
+            log.LogInformation("Function triggered to upload image");
 
             var file = _requestHelper.GetFile(req);
 
             if (file == null)
             {
-                return new BadRequestObjectResult("The image file doesn't exist.");
+                return new BadRequestObjectResult("The image file doesn't exist");
             }
-
             if (!file.ContentType.StartsWith("image/"))
             {
-                return new BadRequestObjectResult("The file is not an image.");
+                return new BadRequestObjectResult("The file is not an image");
+            }
+            if (file.Length > _maxFileSize)
+            {
+                return new BadRequestObjectResult($"The maximum file size is {_maxFileSize} bytes");
             }
 
             string extension = Path.GetExtension(file.FileName);
